@@ -20,7 +20,22 @@ Note that depending on the permissions of your SimCity 4 installation directory 
 with administrator permissions to be able to save the file.
 
 2. Adjust the settings in the `[AutoSave]` section to your preferences.
+
 3. Save the file and start the game.
+
+### Settings overview:  
+
+`IntervalInMinutes` is the number of minutes that elapse between auto-save attempts, defaults to `15` minutes.
+Note that the save timing may not be exactly this value depending on what the game is doing.
+For example, auto-save is disabled when the game is paused.
+
+`FastSave` controls whether the game skips updating the region thumbnail when saving, defaults to `true`. With this option enabled the save operation is
+equivalent to the `Ctrl + Alt + S` keyboard shortcut, when disabled it is equivalent to the `Ctrl + S` keyboard shortcut.
+
+`IgnoreTimePaused` controls whether the time the game spends paused is ignored when counting towards the next auto-save point, defaults to `true`.
+
+`LogSaveEvents` controls whether the save events for the current session will be written to the log file, defaults to `true`.
+
 
 ## Troubleshooting
 
