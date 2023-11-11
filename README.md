@@ -9,6 +9,8 @@ The plugin can be downloaded from the Releases tab: https://github.com/0xC000005
 
 ## Installation
 
+If you use an external launcher that has its own auto-save setting, you will need to disable it before installing this plugin.
+
 1. Close SimCity 4.
 2. Copy `SC4AutoSave.dll` and `SC4AutoSave.ini` into the Plugins folder in the SimCity 4 installation directory.
 3. Configure the auto-save settings, see the `Configuring the plugin` section.
