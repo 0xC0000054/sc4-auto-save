@@ -56,7 +56,7 @@ class cGZAutoSaveDllDirector : public cRZMessage2COMDirector
 public:
 
 	cGZAutoSaveDllDirector()
-		: timer(),
+		: autoSaveTimer(),
 		  pauseEventCount(0),
 		  cityEstablished(false),
 		  settings(),
@@ -107,7 +107,7 @@ public:
 	void CityEstablished()
 	{
 		cityEstablished = true;
-		timer.Start();
+		autoSaveTimer.Start();
 	}
 
 	void GamePause(cIGZMessage2Standard* pStandardMsg)
@@ -125,7 +125,7 @@ public:
 
 			if (pauseEventCount == 1)
 			{
-				timer.Stop();
+				autoSaveTimer.Stop();
 			}
 		}
 		else
@@ -136,7 +136,7 @@ public:
 
 				if (pauseEventCount == 0)
 				{
-					timer.Start();
+					autoSaveTimer.Start();
 				}
 			}
 		}
@@ -153,7 +153,7 @@ public:
 			if (pCity->GetEstablished())
 			{
 				cityEstablished = true;
-				timer.Start();
+				autoSaveTimer.Start();
 			}
 		}
 	}
@@ -161,14 +161,14 @@ public:
 	void PreCityShutdown()
 	{
 		cityEstablished = false;
-		timer.Stop();
+		autoSaveTimer.Stop();
 	}
 
 	void SimNewDay()
 	{
-		if (cityEstablished && timer.IsRunning())
+		if (cityEstablished && autoSaveTimer.IsRunning())
 		{
-			int64_t elapsedMinutes = timer.ElapsedMinutes();
+			int64_t elapsedMinutes = autoSaveTimer.ElapsedMinutes();
 
 			if (elapsedMinutes >= settings.SaveIntervalInMinutes())
 			{
@@ -218,7 +218,7 @@ public:
 						}
 					}
 
-					timer.Restart();
+					autoSaveTimer.Restart();
 				}
 			}
 		}
@@ -362,7 +362,7 @@ private:
 #endif // _DEBUG
 
 
-	Stopwatch timer;
+	Stopwatch autoSaveTimer;
 	int pauseEventCount;
 	bool cityEstablished;
 	Settings settings;
