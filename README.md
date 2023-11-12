@@ -52,8 +52,8 @@ See [LICENSE.txt](LICENSE.txt) for more information.
 ## 3rd party code
 
 [gzcom-dll](https://github.com/nsgomez/gzcom-dll/tree/master) Located in the vendor folder, MIT License.    
-[Windows Implementation Library](https://github.com/microsoft/wil) MIT License
-[.NET runtime](https://github.com/dotnet/runtime) The `Stopwatch` class is based on `System.Diagnostics.Stopwatch`, MIT License.
+[Windows Implementation Library](https://github.com/microsoft/wil) MIT License    
+[.NET runtime](https://github.com/dotnet/runtime) The `Stopwatch` class is based on `System.Diagnostics.Stopwatch`, MIT License.    
 [Boost.PropertyTree](https://www.boost.org/doc/libs/1_83_0/doc/html/property_tree.html) Boost Software License, Version 1.0.
 
 # Source Code
