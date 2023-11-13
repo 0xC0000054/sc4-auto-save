@@ -1,6 +1,12 @@
 # sc4-auto-save
 
-A DLL Plugin for SimCity 4 that automatically saves a city at user-specified intervals.    
+A DLL Plugin for SimCity 4 that automatically saves a city at user-specified intervals.   
+
+This auto-save plugin does not require any launcher and will work with any digital Windows version of the game, Steam, GOG, etc. 
+The disc-based versions are not supported due to the fact that they are incompatible with Windows 10.
+
+If you use a 3rd-party launcher that has its own auto-save setting you will need to disable that option when installing this plugin. 
+ 
 The plugin can be downloaded from the Releases tab: https://github.com/0xC0000054/sc4-auto-save/releases
 
 ## System Requirements
@@ -8,8 +14,6 @@ The plugin can be downloaded from the Releases tab: https://github.com/0xC000005
 * Windows 10 or later
 
 ## Installation
-
-If you use an external launcher that has its own auto-save setting, you will need to disable that option when installing this plugin.
 
 1. Close SimCity 4.
 2. Copy `SC4AutoSave.dll` and `SC4AutoSave.ini` into the Plugins folder in the SimCity 4 installation directory.
