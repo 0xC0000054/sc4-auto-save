@@ -75,6 +75,8 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="vcpkg.json" />
+    <None Include=".editorconfig" />
+    <None Include="IgnoredWords.dic" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\SC4DisableCheats\src\version.rc">

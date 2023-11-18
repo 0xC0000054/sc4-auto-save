@@ -33,6 +33,8 @@
     <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".editorconfig" />
+    <None Include="IgnoredWords.dic" />
     <None Include="packages.config" />
     <None Include="vcpkg.json" />
   </ItemGroup>
