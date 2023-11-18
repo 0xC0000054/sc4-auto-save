@@ -356,8 +356,21 @@ private:
 #ifdef _DEBUG
 	void PrintLineToDebugOutput(const char* line)
 	{
+		SYSTEMTIME time;
+		GetSystemTime(&time);
+
+		char buffer[1024]{};
+
+		std::snprintf(buffer,
+			sizeof(buffer),
+			"[%hu:%hu:%hu.%hu] %s\n",
+			time.wHour,
+			time.wMinute,
+			time.wSecond,
+			time.wMilliseconds,
+			line);
+
 		OutputDebugStringA(line);
-		OutputDebugStringA("\n");
 	}
 #endif // _DEBUG
 
