@@ -176,13 +176,11 @@ public:
 
 				if (CanSaveCity(pSC4App))
 				{
-#ifdef _DEBUG
-					PrintLineToDebugOutput("Saving city...");
-#endif // _DEBUG
-
 					const char* status = nullptr;
 					bool fastSave = settings.FastSave();
-
+#ifdef _DEBUG
+					PrintLineToDebugOutputFormatted("Saving city, FastSave=%s", fastSave ? "true" : "false");
+#endif // _DEBUG
 					if (pSC4App->SaveCity(fastSave))
 					{
 						status = "City saved.";
@@ -203,7 +201,7 @@ public:
 
 						char buffer[1024]{};
 
-						int charsWritten = snprintf(buffer,
+						int charsWritten = std::snprintf(buffer,
 							sizeof(buffer),
 							"[%hu:%hu:%hu.%hu] %s",
 							time.wHour,
@@ -354,6 +352,20 @@ private:
 	}
 
 #ifdef _DEBUG
+	void PrintLineToDebugOutputFormatted(const char* format, ...)
+	{
+		char buffer[1024]{};
+
+		va_list args;
+		va_start(args, format);
+
+		std::vsnprintf(buffer, sizeof(buffer), format, args);
+
+		va_end(args);
+
+		PrintLineToDebugOutput(buffer);
+	}
+
 	void PrintLineToDebugOutput(const char* line)
 	{
 		SYSTEMTIME time;
