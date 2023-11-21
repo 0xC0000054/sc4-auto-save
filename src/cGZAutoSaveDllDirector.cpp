@@ -375,7 +375,7 @@ private:
 
 		std::snprintf(buffer,
 			sizeof(buffer),
-			"[%hu:%hu:%hu.%hu] %s\n",
+			"[%hu:%hu:%hu.%hu] %s",
 			time.wHour,
 			time.wMinute,
 			time.wSecond,
@@ -383,6 +383,7 @@ private:
 			line);
 
 		OutputDebugStringA(line);
+		OutputDebugStringA("\n");
 	}
 #endif // _DEBUG
 
