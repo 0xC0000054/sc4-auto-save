@@ -50,7 +50,7 @@ void Settings::Load(const std::filesystem::path& path)
 
 	if (!stream)
 	{
-		throw std::runtime_error("Failed top open the settings file.");
+		throw std::runtime_error("Failed to open the settings file.");
 	}
 
 	pt::ptree tree;
