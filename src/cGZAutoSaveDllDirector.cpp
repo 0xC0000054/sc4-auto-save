@@ -10,8 +10,9 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#include "cGZAutoSaveService.h"
+#include "Logger.h"
 #include "Settings.h"
-#include "Stopwatch.h"
 #include "version.h"
 #include "cIGZFrameWork.h"
 #include "cIGZApp.h"
@@ -27,7 +28,6 @@
 #include "cRZBaseString.h"
 #include "GZServPtrs.h"
 #include <filesystem>
-#include <fstream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -38,7 +38,6 @@
 static constexpr uint32_t kSC4MessageCityEstablished = 0x26D31EC4;
 static constexpr uint32_t kSC4MessagePostCityInit = 0x26d31ec1;
 static constexpr uint32_t kSC4MessagePreCityShutdown = 0x26D31EC2;
-static constexpr uint32_t kSC4MessageSimNewDay = 0x66956814;
 static constexpr uint32_t kSC4MessageSimPauseChange = 0xAA7FB7E0;
 static constexpr uint32_t kSC4MessageSimHiddenPauseChange = 0x4A7FB7E2;
 static constexpr uint32_t kSC4MessageSimEmergencyPauseChange = 0x4A7FB807;
@@ -56,11 +55,10 @@ class cGZAutoSaveDllDirector : public cRZMessage2COMDirector
 public:
 
 	cGZAutoSaveDllDirector()
-		: autoSaveTimer(),
+		: autoSaveService(),
 		  pauseEventCount(0),
 		  cityEstablished(false),
-		  settings(),
-		  logFile()
+		  settings()
 	{
 		std::filesystem::path dllFolder = GetDllFolderPath();
 
@@ -70,11 +68,10 @@ public:
 		std::filesystem::path logFilePath = dllFolder;
 		logFilePath /= PluginLogFileName;
 
-		logFile.open(logFilePath, std::ofstream::out | std::ofstream::trunc);
-		if (logFile)
-		{
-			logFile << "SC4AutoSave v" PLUGIN_VERSION_STR << std::endl;
-		}
+		Logger& logger = Logger::GetInstance();
+
+		logger.Init(logFilePath, LogLevel::Error);
+		logger.WriteLogFileHeader("SC4AutoSave v" PLUGIN_VERSION_STR);
 	}
 
 	uint32_t GetDirectorID() const
@@ -82,32 +79,10 @@ public:
 		return kAutoSavePluginDirectorID;
 	}
 
-	bool CanSaveCity(cISC4App* pSC4App)
-	{
-		bool canSave = false;
-
-		if (pSC4App)
-		{
-			cISC4City* pCity = pSC4App->GetCity();
-
-			if (pCity && !pCity->IsSaveDisabled())
-			{
-				cISC4SimulatorPtr pSimulator;
-
-				if (pSimulator && !pSimulator->IsAnyPaused())
-				{
-					canSave = true;
-				}
-			}
-		}
-
-		return canSave;
-	}
-
 	void CityEstablished()
 	{
 		cityEstablished = true;
-		autoSaveTimer.Start();
+		autoSaveService.Start();
 	}
 
 	void GamePause(cIGZMessage2Standard* pStandardMsg)
@@ -125,7 +100,7 @@ public:
 
 			if (pauseEventCount == 1)
 			{
-				autoSaveTimer.Stop();
+				autoSaveService.Stop();
 			}
 		}
 		else
@@ -136,7 +111,7 @@ public:
 
 				if (pauseEventCount == 0)
 				{
-					autoSaveTimer.Start();
+					autoSaveService.Start();
 				}
 			}
 		}
@@ -153,7 +128,7 @@ public:
 			if (pCity->GetEstablished())
 			{
 				cityEstablished = true;
-				autoSaveTimer.Start();
+				autoSaveService.Start();
 			}
 		}
 	}
@@ -161,66 +136,8 @@ public:
 	void PreCityShutdown()
 	{
 		cityEstablished = false;
-		autoSaveTimer.Stop();
+		autoSaveService.Stop();
 	}
-
-	void SimNewDay()
-	{
-		if (cityEstablished && autoSaveTimer.IsRunning())
-		{
-			int64_t elapsedMinutes = autoSaveTimer.ElapsedMinutes();
-
-			if (elapsedMinutes >= settings.SaveIntervalInMinutes())
-			{
-				cISC4AppPtr pSC4App;
-
-				if (CanSaveCity(pSC4App))
-				{
-					const char* status = nullptr;
-					bool fastSave = settings.FastSave();
-#ifdef _DEBUG
-					PrintLineToDebugOutputFormatted("Saving city, FastSave=%s", fastSave ? "true" : "false");
-#endif // _DEBUG
-					if (pSC4App->SaveCity(fastSave))
-					{
-						status = "City saved.";
-					}
-					else
-					{
-						status = "The games's SaveCity command failed.";
-					}
-
-#ifdef _DEBUG
-					PrintLineToDebugOutput(status);
-#endif // _DEBUG
-
-					if (settings.LogSaveEvents() && logFile)
-					{
-						SYSTEMTIME time;
-						GetSystemTime(&time);
-
-						char buffer[1024]{};
-
-						int charsWritten = std::snprintf(buffer,
-							sizeof(buffer),
-							"[%hu:%hu:%hu.%hu] %s",
-							time.wHour,
-							time.wMinute,
-							time.wSecond,
-							time.wMilliseconds,
-							status);
-
-						if (charsWritten > 0)
-						{
-							logFile << buffer << std::endl;
-						}
-					}
-
-					autoSaveTimer.Restart();
-				}
-			}
-		}
-	}	
 
 	bool DoMessage(cIGZMessage2* pMessage)
 	{
@@ -237,9 +154,6 @@ public:
 			break;
 		case kSC4MessageCityEstablished:
 			CityEstablished();
-			break;
-		case kSC4MessageSimNewDay:
-			SimNewDay();
 			break;
 		case kSC4MessageSimPauseChange:
 		case kSC4MessageSimHiddenPauseChange:
@@ -269,7 +183,7 @@ public:
 							  kMinimumSaveIntervalInMinutes);
 
 				MessageBoxA(nullptr, buffer, "SC4AutoSave - Error when loading settings", MB_OK | MB_ICONERROR);
-				return true;
+				return false;
 			}
 			else if (saveInterval > kMaximumSaveIntervalInMinutes)
 			{
@@ -281,13 +195,13 @@ public:
 							  kMaximumSaveIntervalInMinutes);
 
 				MessageBoxA(nullptr, buffer, "SC4AutoSave - Error when loading settings", MB_OK | MB_ICONERROR);
-				return true;
+				return false;
 			}
 		}
 		catch (const std::exception& ex)
 		{
 			MessageBoxA(nullptr, ex.what(), "SC4AutoSave - Error when loading settings", MB_OK | MB_ICONERROR);
-			return true;
+			return false;
 		}
 
 		cIGZMessageServer2Ptr pMsgServ;
@@ -297,7 +211,6 @@ public:
 			requiredNotifications.push_back(kSC4MessageCityEstablished);
 			requiredNotifications.push_back(kSC4MessagePostCityInit);
 			requiredNotifications.push_back(kSC4MessagePreCityShutdown);
-			requiredNotifications.push_back(kSC4MessageSimNewDay);
 
 			if (settings.IgnoreTimePaused())
 			{
@@ -311,16 +224,30 @@ public:
 				if (!pMsgServ->AddNotification(this, messageID))
 				{
 					MessageBoxA(nullptr, "Failed to subscribe to the required notifications.", "SC4AutoSave", MB_OK | MB_ICONERROR);
-					return true;
+					return false;
 				}
 			}
 		}
 		else
 		{
 			MessageBoxA(nullptr, "Failed to subscribe to the required notifications.", "SC4AutoSave", MB_OK | MB_ICONERROR);
-			return true;
+			return false;
 		}
 
+		cIGZFrameWork* pFramework = FrameWork();
+
+		if (!autoSaveService.PostAppInit(pFramework, settings))
+		{
+			MessageBoxA(nullptr, "Failed to initialize the auto save service.", "SC4AutoSave", MB_OK | MB_ICONERROR);
+			return false;
+		}
+
+		return true;
+	}
+
+	bool PreAppShutdown()
+	{
+		autoSaveService.PreAppShutdown();
 		return true;
 	}
 
@@ -351,49 +278,11 @@ private:
 		return temp.parent_path();
 	}
 
-#ifdef _DEBUG
-	void PrintLineToDebugOutputFormatted(const char* format, ...)
-	{
-		char buffer[1024]{};
-
-		va_list args;
-		va_start(args, format);
-
-		std::vsnprintf(buffer, sizeof(buffer), format, args);
-
-		va_end(args);
-
-		PrintLineToDebugOutput(buffer);
-	}
-
-	void PrintLineToDebugOutput(const char* line)
-	{
-		SYSTEMTIME time;
-		GetSystemTime(&time);
-
-		char buffer[1024]{};
-
-		std::snprintf(buffer,
-			sizeof(buffer),
-			"[%hu:%hu:%hu.%hu] %s",
-			time.wHour,
-			time.wMinute,
-			time.wSecond,
-			time.wMilliseconds,
-			line);
-
-		OutputDebugStringA(line);
-		OutputDebugStringA("\n");
-	}
-#endif // _DEBUG
-
-
-	Stopwatch autoSaveTimer;
+	cGZAutoSaveService autoSaveService;
 	int pauseEventCount;
 	bool cityEstablished;
 	Settings settings;
 	std::filesystem::path configFilePath;
-	std::ofstream logFile;
 };
 
 cRZCOMDllDirector* RZGetCOMDllDirector() {

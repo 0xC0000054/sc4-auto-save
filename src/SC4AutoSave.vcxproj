@@ -16,6 +16,9 @@
     <ClCompile Include="..\vendor\src\cRZMessage2.cpp" />
     <ClCompile Include="..\vendor\src\cRZMessage2Standard.cpp" />
     <ClCompile Include="cGZAutoSaveDllDirector.cpp" />
+    <ClCompile Include="cGZAutoSaveService.cpp" />
+    <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="ServiceBase.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Stopwatch.cpp" />
   </ItemGroup>
@@ -28,6 +31,9 @@
     <ClInclude Include="..\vendor\include\cISC4App.h" />
     <ClInclude Include="..\vendor\include\cRZCOMDllDirector.h" />
     <ClInclude Include="..\vendor\include\GZServPtrs.h" />
+    <ClInclude Include="cGZAutoSaveService.h" />
+    <ClInclude Include="Logger.h" />
+    <ClInclude Include="ServiceBase.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Stopwatch.h" />
     <ClInclude Include="version.h" />
@@ -86,7 +92,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>..\vendor\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -109,7 +115,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>..\vendor\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
