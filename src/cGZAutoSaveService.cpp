@@ -84,26 +84,33 @@ bool cGZAutoSaveService::PostAppInit(cIGZFrameWork* pFramework, const Settings& 
 	{
 		this->pFramework = pFramework;
 
-		cIGZApp* pApp = pFramework->Application();
-
-		if (pApp)
+		if (pFramework->GetSystemService(kGZWinMgr_SysServiceID, kGZIID_cIGZWinMgr, pWinMgr.AsPPVoidParam()))
 		{
-			if (pApp->QueryInterface(GZIID_cISC4App, pSC4App.AsPPVoidParam()))
-			{
-				saveIntervalInMinutes = settings.SaveIntervalInMinutes();
-				fastSave = settings.FastSave();
-				logSaveEvents = settings.LogSaveEvents();
+			cIGZApp* pApp = pFramework->Application();
 
-				result = Init();
+			if (pApp)
+			{
+				if (pApp->QueryInterface(GZIID_cISC4App, pSC4App.AsPPVoidParam()))
+				{
+					saveIntervalInMinutes = settings.SaveIntervalInMinutes();
+					fastSave = settings.FastSave();
+					logSaveEvents = settings.LogSaveEvents();
+
+					result = Init();
+				}
+				else
+				{
+					logger.WriteLine(LogLevel::Error, "QueryInterface(GZIID_cISC4App...) returned false, not SC4?");
+				}
 			}
 			else
 			{
-				logger.WriteLine(LogLevel::Error, "QueryInterface(GZIID_cISC4App...) returned false, not SC4?");
+				logger.WriteLine(LogLevel::Error, "The cIGZApp pointer was null.");
 			}
 		}
 		else
 		{
-			logger.WriteLine(LogLevel::Error, "The cIGZApp pointer was null.");
+			logger.WriteLine(LogLevel::Error, "Failed to get the window manager service.");
 		}
 	}
 	else
@@ -119,6 +126,7 @@ bool cGZAutoSaveService::PreAppShutdown()
 	bool result = Shutdown();
 
 	pSC4App.Reset();
+	pWinMgr.Reset();
 	pFramework.Reset();
 
 	return result;
@@ -150,15 +158,18 @@ bool cGZAutoSaveService::CanSaveCity() const
 
 	if (pSC4App)
 	{
-		cISC4City* pCity = pSC4App->GetCity();
-
-		if (pCity && !pCity->IsSaveDisabled())
+		if (pWinMgr && !pWinMgr->IsModal())
 		{
-			cISC4Simulator* pSimulator = pCity->GetSimulator();
+			cISC4City* pCity = pSC4App->GetCity();
 
-			if (pSimulator && !pSimulator->IsAnyPaused())
+			if (pCity && !pCity->IsSaveDisabled())
 			{
-				canSave = true;
+				cISC4Simulator* pSimulator = pCity->GetSimulator();
+
+				if (pSimulator && !pSimulator->IsAnyPaused())
+				{
+					canSave = true;
+				}
 			}
 		}
 	}

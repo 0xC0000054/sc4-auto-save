@@ -16,6 +16,7 @@
 #include "Settings.h"
 #include "Stopwatch.h"
 #include "cIGZFrameWork.h"
+#include "cIGZWinMgr.h"
 #include "cISC4App.h"
 #include "cRZAutoRefCount.h"
 
@@ -51,5 +52,6 @@ private:
 	Stopwatch autoSaveTimer;
 	cRZAutoRefCount<cIGZFrameWork> pFramework;
 	cRZAutoRefCount<cISC4App> pSC4App;
+	cRZAutoRefCount<cIGZWinMgr> pWinMgr;
 };
 

@@ -7,6 +7,9 @@ class cIGZString;
 class cIGZWin;
 class cIGZWinMessageFilter;
 
+static const uint32_t kGZWinMgr_SysServiceID = 0xA417445E;
+static const uint32_t kGZIID_cIGZWinMgr = 0x5A4;
+
 /**
  * @brief An interface for a window manager for the game UI
  */
@@ -27,7 +30,7 @@ class cIGZWinMgr : public cIGZUnknown
 
 		virtual bool SendMessageToTarget(cGZMessage& sMessage) = 0;
 		virtual bool SendMessageToTarget(cIGZWin* pWin, uint32_t, uint32_t, uint32_t, uint32_t) = 0;
-		
+
 		virtual bool PostMessageToTarget(cIGZWin* pWin, cGZMessage const& sMessage) = 0;
 		virtual bool PostMessageToTarget(cIGZWin* pWin, uint32_t, uint32_t, uint32_t, uint32_t) = 0;
 
@@ -39,7 +42,7 @@ class cIGZWinMgr : public cIGZUnknown
 		virtual bool AddWindowToValidList(cIGZWin* pWin) = 0;
 		virtual bool RemoveWindowFromValidList(cIGZWin* pWin) = 0;
 		virtual bool CleanUpWindowReferences(cIGZWin* pWin) = 0;
-		
+
 		virtual bool DestroyWindow(cIGZWin* pWin) = 0;
 		virtual bool IsWindowValid(cIGZWin* pWin) = 0;
 		virtual cIGZWin* GetWindowFromPoint(int32_t nX, int32_t nZ) = 0;
@@ -50,7 +53,7 @@ class cIGZWinMgr : public cIGZUnknown
 		virtual cIGZWin* GZGetCapture(void) = 0;
 		virtual bool GZSetCapture(cIGZWin* pWin) = 0;
 		virtual bool GZReleaseCapture(cIGZWin* pWin) = 0;
-		
+
 		virtual bool GZShowCursor(bool bShow) = 0;
 		virtual intptr_t GetCursorManager(void) = 0;
 		virtual bool GetCursorScreenPosition(int32_t& nX, int32_t& nZ) = 0;
@@ -59,7 +62,7 @@ class cIGZWinMgr : public cIGZUnknown
 
 		virtual cIGZWin* GZGetFocus(void) = 0;
 		virtual bool GZSetFocus(cIGZWin* pWin) = 0;
-		
+
 		virtual intptr_t GetKeyboard(void) = 0;
 
 		virtual bool GZRegisterKeyFilter(cIGZWinMessageFilter* pFilter) = 0;
