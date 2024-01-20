@@ -176,7 +176,7 @@ public:
 			if (saveInterval < kMinimumSaveIntervalInMinutes)
 			{
 				char buffer[1024]{};
-				
+
 				std::snprintf(buffer,
 						      sizeof(buffer),
 							  "The save interval is less than %d minute(s).",

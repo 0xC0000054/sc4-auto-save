@@ -47,12 +47,12 @@ bool ServiceBase::QueryInterface(uint32_t riid, void** ppvObj)
 		return true;
 	}
 
-    return false;
+	return false;
 }
 
 uint32_t ServiceBase::AddRef()
 {
-    return ++refCount;
+	return ++refCount;
 }
 
 uint32_t ServiceBase::Release()
@@ -61,7 +61,7 @@ uint32_t ServiceBase::Release()
 	{
 		--refCount;
 	}
-    return refCount;
+	return refCount;
 }
 
 bool ServiceBase::Init()
@@ -76,29 +76,29 @@ bool ServiceBase::Shutdown()
 
 uint32_t ServiceBase::GetServiceID()
 {
-    return serviceID;
+	return serviceID;
 }
 
 cIGZSystemService* ServiceBase::SetServiceID(uint32_t id)
 {
 	serviceID = id;
-    return this;
+	return this;
 }
 
 int32_t ServiceBase::GetServicePriority()
 {
-    return servicePriority;
+	return servicePriority;
 }
 
 bool ServiceBase::IsServiceRunning()
 {
-    return serviceRunning;
+	return serviceRunning;
 }
 
 cIGZSystemService* ServiceBase::SetServiceRunning(bool running)
 {
 	serviceRunning = running;
-    return this;
+	return this;
 }
 
 bool ServiceBase::OnTick(uint32_t unknown1)

@@ -57,12 +57,12 @@ namespace
 		va_end(args);
 
 		PrintLineToDebugOutput(buffer);
-	}	
+	}
 #endif // _DEBUG
 }
 
 cGZAutoSaveService::cGZAutoSaveService()
-	: ServiceBase(kAutoSaveServiceID, 1000000),	  
+	: ServiceBase(kAutoSaveServiceID, 1000000),
 	  addedSystemService(false),
 	  running(false),
 	  saveIntervalInMinutes(15),

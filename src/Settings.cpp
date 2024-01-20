@@ -20,7 +20,7 @@ Settings::Settings()
 	: saveIntervalInMinutes(15),
 	  fastSave(false),
 	  ignoreTimePaused(true),
-      logSaveEvents(true)
+	  logSaveEvents(true)
 {
 }
 
