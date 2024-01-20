@@ -88,7 +88,7 @@ bool cGZAutoSaveService::PostAppInit(cIGZFrameWork* pFramework, const Settings& 
 
 		if (pApp)
 		{
-			if (pApp->QueryInterface(GZIID_cISC4App, reinterpret_cast<void**>(&pSC4App)))
+			if (pApp->QueryInterface(GZIID_cISC4App, pSC4App.AsPPVoidParam()))
 			{
 				saveIntervalInMinutes = settings.SaveIntervalInMinutes();
 				fastSave = settings.FastSave();
@@ -118,9 +118,8 @@ bool cGZAutoSaveService::PreAppShutdown()
 {
 	bool result = Shutdown();
 
-	pSC4App->Release();
-	pSC4App = nullptr;
-	pFramework = nullptr;
+	pSC4App.Reset();
+	pFramework.Reset();
 
 	return result;
 }

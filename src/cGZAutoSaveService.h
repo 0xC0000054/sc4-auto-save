@@ -17,6 +17,7 @@
 #include "Stopwatch.h"
 #include "cIGZFrameWork.h"
 #include "cISC4App.h"
+#include "cRZAutoRefCount.h"
 
 class cGZAutoSaveService final : private ServiceBase
 {
@@ -48,7 +49,7 @@ private:
 	bool fastSave;
 	bool logSaveEvents;
 	Stopwatch autoSaveTimer;
-	cIGZFrameWork* pFramework;
-	cISC4App* pSC4App;
+	cRZAutoRefCount<cIGZFrameWork> pFramework;
+	cRZAutoRefCount<cISC4App> pSC4App;
 };
 
