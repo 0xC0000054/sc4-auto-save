@@ -84,7 +84,7 @@ public:
 	void CityEstablished()
 	{
 		cityEstablished = true;
-		autoSaveService.Start();
+		autoSaveService.StartTimer();
 	}
 
 	void AppGainLoseFocus(cIGZMessage2Standard* pStandardMsg)
@@ -134,7 +134,23 @@ public:
 
 			if (pauseEventCount == 1)
 			{
-				autoSaveService.Stop();
+				// When the game is paused we either stop the auto save timer
+				// or leave it running and remove the auto save service from
+				// the game's OnIdle callback.
+				// Stopping the auto save timer will also remove the auto save
+				// service from the game's OnIdle callback
+				//
+				// This prevents the game from wasting CPU on the auto save timer
+				// checks. We never save a city when the game is paused.
+
+				if (settings.IgnoreTimePaused())
+				{
+					autoSaveService.StopTimer();
+				}
+				else
+				{
+					autoSaveService.RemoveFromOnIdle();
+				}
 			}
 		}
 		else
@@ -145,7 +161,14 @@ public:
 
 				if (pauseEventCount == 0)
 				{
-					autoSaveService.Start();
+					if (settings.IgnoreTimePaused())
+					{
+						autoSaveService.StartTimer();
+					}
+					else
+					{
+						autoSaveService.AddToOnIdle();
+					}
 				}
 			}
 		}
@@ -162,7 +185,7 @@ public:
 			if (pCity->GetEstablished())
 			{
 				cityEstablished = true;
-				autoSaveService.Start();
+				autoSaveService.StartTimer();
 			}
 		}
 	}
@@ -170,7 +193,7 @@ public:
 	void PreCityShutdown()
 	{
 		cityEstablished = false;
-		autoSaveService.Stop();
+		autoSaveService.StopTimer();
 	}
 
 	bool DoMessage(cIGZMessage2* pMessage)
@@ -249,13 +272,9 @@ public:
 			requiredNotifications.push_back(kSC4MessagePostCityInit);
 			requiredNotifications.push_back(kSC4MessagePreCityShutdown);
 			requiredNotifications.push_back(kMessageTypeAppGainLoseFocus);
-
-			if (settings.IgnoreTimePaused())
-			{
-				requiredNotifications.push_back(kSC4MessageSimPauseChange);
-				requiredNotifications.push_back(kSC4MessageSimHiddenPauseChange);
-				requiredNotifications.push_back(kSC4MessageSimEmergencyPauseChange);
-			}
+			requiredNotifications.push_back(kSC4MessageSimPauseChange);
+			requiredNotifications.push_back(kSC4MessageSimHiddenPauseChange);
+			requiredNotifications.push_back(kSC4MessageSimEmergencyPauseChange);
 
 			for (uint32_t messageID : requiredNotifications)
 			{

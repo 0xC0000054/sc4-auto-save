@@ -30,9 +30,9 @@ public:
 
 	bool PreAppShutdown();
 
-	void Start();
+	void StartTimer();
 
-	void Stop();
+	void StopTimer();
 
 	void AddToOnIdle();
 

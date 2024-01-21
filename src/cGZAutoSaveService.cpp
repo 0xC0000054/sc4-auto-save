@@ -134,7 +134,7 @@ bool cGZAutoSaveService::PreAppShutdown()
 	return result;
 }
 
-void cGZAutoSaveService::Start()
+void cGZAutoSaveService::StartTimer()
 {
 	if (!running)
 	{
@@ -144,7 +144,7 @@ void cGZAutoSaveService::Start()
 	}
 }
 
-void cGZAutoSaveService::Stop()
+void cGZAutoSaveService::StopTimer()
 {
 	if (running)
 	{
@@ -175,6 +175,11 @@ void cGZAutoSaveService::SetAppHasFocus(bool value)
 {
 	appHasFocus = value;
 
+	// When the game loses focus we remove the auto save service
+	// from the game's OnIdle callback.
+	//
+	// This prevents the game from wasting CPU on the auto save timer
+	// checks. We never save a city when the game is in the background.
 	if (appHasFocus)
 	{
 		AddToOnIdle();
@@ -226,7 +231,7 @@ bool cGZAutoSaveService::Shutdown()
 
 	if (addedSystemService)
 	{
-		Stop();
+		StopTimer();
 		pFramework->RemoveSystemService(this);
 		addedSystemService = false;
 	}
