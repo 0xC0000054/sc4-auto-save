@@ -41,6 +41,7 @@ static constexpr uint32_t kSC4MessagePreCityShutdown = 0x26D31EC2;
 static constexpr uint32_t kSC4MessageSimPauseChange = 0xAA7FB7E0;
 static constexpr uint32_t kSC4MessageSimHiddenPauseChange = 0x4A7FB7E2;
 static constexpr uint32_t kSC4MessageSimEmergencyPauseChange = 0x4A7FB807;
+static constexpr uint32_t kMessageTypeAppGainLoseFocus = 0x4348B111;
 
 static constexpr uint32_t kAutoSavePluginDirectorID = 0xb0bd667d;
 
@@ -56,6 +57,7 @@ public:
 
 	cGZAutoSaveDllDirector()
 		: autoSaveService(),
+		  loseFocusEventCount(0),
 		  pauseEventCount(0),
 		  cityEstablished(false),
 		  settings()
@@ -83,6 +85,38 @@ public:
 	{
 		cityEstablished = true;
 		autoSaveService.Start();
+	}
+
+	void AppGainLoseFocus(cIGZMessage2Standard* pStandardMsg)
+	{
+		if (!cityEstablished)
+		{
+			return;
+		}
+
+		bool hasFocus = pStandardMsg->GetData1() != 0;
+
+		if (hasFocus)
+		{
+			if (loseFocusEventCount > 0)
+			{
+				loseFocusEventCount--;
+
+				if (loseFocusEventCount == 0)
+				{
+					autoSaveService.SetAppHasFocus(true);
+				}
+			}
+		}
+		else
+		{
+			loseFocusEventCount++;
+
+			if (loseFocusEventCount == 1)
+			{
+				autoSaveService.SetAppHasFocus(false);
+			}
+		}
 	}
 
 	void GamePause(cIGZMessage2Standard* pStandardMsg)
@@ -160,6 +194,9 @@ public:
 		case kSC4MessageSimEmergencyPauseChange:
 			GamePause(pStandardMsg);
 			break;
+		case kMessageTypeAppGainLoseFocus:
+			AppGainLoseFocus(pStandardMsg);
+			break;
 		}
 
 		return true;
@@ -211,6 +248,7 @@ public:
 			requiredNotifications.push_back(kSC4MessageCityEstablished);
 			requiredNotifications.push_back(kSC4MessagePostCityInit);
 			requiredNotifications.push_back(kSC4MessagePreCityShutdown);
+			requiredNotifications.push_back(kMessageTypeAppGainLoseFocus);
 
 			if (settings.IgnoreTimePaused())
 			{
@@ -280,6 +318,7 @@ private:
 
 	cGZAutoSaveService autoSaveService;
 	int pauseEventCount;
+	int loseFocusEventCount;
 	bool cityEstablished;
 	Settings settings;
 	std::filesystem::path configFilePath;

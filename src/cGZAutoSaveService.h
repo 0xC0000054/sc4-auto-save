@@ -34,6 +34,12 @@ public:
 
 	void Stop();
 
+	void AddToOnIdle();
+
+	void RemoveFromOnIdle();
+
+	void SetAppHasFocus(bool value);
+
 private:
 
 	bool CanSaveCity() const;
@@ -45,10 +51,12 @@ private:
 	bool OnIdle(uint32_t unknown1) override;
 
 	bool addedSystemService;
+	bool addedToOnIdle;
 	bool running;
 	int saveIntervalInMinutes;
 	bool fastSave;
 	bool logSaveEvents;
+	bool appHasFocus;
 	Stopwatch autoSaveTimer;
 	cRZAutoRefCount<cIGZFrameWork> pFramework;
 	cRZAutoRefCount<cISC4App> pSC4App;

@@ -64,10 +64,12 @@ namespace
 cGZAutoSaveService::cGZAutoSaveService()
 	: ServiceBase(kAutoSaveServiceID, 1000000),
 	  addedSystemService(false),
+	  addedToOnIdle(false),
 	  running(false),
 	  saveIntervalInMinutes(15),
 	  fastSave(true),
 	  logSaveEvents(true),
+	  appHasFocus(true),
 	  autoSaveTimer(),
 	  pFramework(nullptr),
 	  pSC4App(nullptr)
@@ -136,7 +138,7 @@ void cGZAutoSaveService::Start()
 {
 	if (!running)
 	{
-		pFramework->AddToOnIdle(this);
+		AddToOnIdle();
 		autoSaveTimer.Start();
 		running = true;
 	}
@@ -146,9 +148,40 @@ void cGZAutoSaveService::Stop()
 {
 	if (running)
 	{
-		pFramework->RemoveFromOnIdle(this);
+		RemoveFromOnIdle();
 		autoSaveTimer.Stop();
 		running = false;
+	}
+}
+
+void cGZAutoSaveService::AddToOnIdle()
+{
+	if (!addedToOnIdle)
+	{
+		addedToOnIdle = pFramework->AddToOnIdle(this);
+	}
+}
+
+void cGZAutoSaveService::RemoveFromOnIdle()
+{
+	if (addedToOnIdle)
+	{
+		pFramework->RemoveFromOnIdle(this);
+		addedToOnIdle = false;
+	}
+}
+
+void cGZAutoSaveService::SetAppHasFocus(bool value)
+{
+	appHasFocus = value;
+
+	if (appHasFocus)
+	{
+		AddToOnIdle();
+	}
+	else
+	{
+		RemoveFromOnIdle();
 	}
 }
 
@@ -156,7 +189,7 @@ bool cGZAutoSaveService::CanSaveCity() const
 {
 	bool canSave = false;
 
-	if (pSC4App)
+	if (appHasFocus && pSC4App)
 	{
 		if (pWinMgr && !pWinMgr->IsModal())
 		{
